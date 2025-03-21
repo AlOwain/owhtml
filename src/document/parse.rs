@@ -2,14 +2,25 @@ use std::{iter::Peekable, str::FromStr};
 
 use super::{Document, Element, ElementType};
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum DOMParseError {
+    EmptyDocument,
+    ClosingTagUnclosed,
+    UnexpectedClosingTag,
+    UnclosedTag,
+    UnexpectedChild,
+}
+
+use DOMParseError::*;
+
 impl Document {
     fn parse_tag(
         iter: &mut Peekable<impl Iterator<Item = char>>,
-    ) -> Result<(bool, ElementType, String), String> {
+    ) -> Result<(bool, ElementType, String), DOMParseError> {
         let mut attr = String::new();
         let closing = match iter.peek() {
             Some(c) => *c == '/',
-            None => return Err("Closing tag unannotated.".to_string()),
+            None => return Err(ClosingTagUnclosed),
         };
         if closing {
             iter.next().unwrap();
@@ -34,7 +45,7 @@ impl Document {
 
     fn parse_handler(
         iter: &mut Peekable<impl Iterator<Item = char>>,
-    ) -> Result<Option<Element>, String> {
+    ) -> Result<Option<Element>, DOMParseError> {
         let mut ctx: Option<Element> = None;
         while let Some(letter) = iter.peek() {
             match (letter, &mut ctx) {
@@ -58,8 +69,11 @@ impl Document {
                         ..Default::default()
                     });
                 }
-                ('>', _) => return Err("Unexpected closing tag".to_string()),
+
+                // FIXME(improper error): Shouldn't this be a `UnclosedTag` error?
+                ('>', None) => return Err(UnexpectedClosingTag),
                 ('\\', _) => todo!("Escape sequences have not been implemented."),
+
                 (c, None) if c.is_whitespace() => {
                     iter.next();
                 }
@@ -83,7 +97,7 @@ impl Document {
 }
 
 impl FromStr for Document {
-    type Err = String;
+    type Err = DOMParseError;
     fn from_str(document: &str) -> Result<Self, Self::Err> {
         let root = match Document::parse_handler(&mut document.chars().peekable())? {
             Some(e) => {

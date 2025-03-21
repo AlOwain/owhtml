@@ -3,6 +3,7 @@
 use std::{fs::File, io::Read, str::FromStr};
 
 mod parse;
+use parse::DOMParseError;
 
 #[derive(Debug, PartialEq, Eq)]
 enum ElementType {
@@ -14,14 +15,14 @@ enum ElementType {
 }
 
 impl FromStr for ElementType {
-    type Err = String;
+    type Err = DOMParseError;
 
-    fn from_str(string: &str) -> Result<Self, Self::Err> {
-        match string.into() {
+    fn from_str(tag: &str) -> Result<Self, Self::Err> {
+        match tag {
             "body" => Ok(ElementType::Body),
             "div" => Ok(ElementType::Div),
             "b" => Ok(ElementType::Bold(String::new())),
-            _ => Err(format!("Element tag '{string}' has not been implemented.")),
+            _ => todo!("Element tag '{tag}' has not been implemented."),
         }
     }
 }
@@ -54,7 +55,7 @@ pub struct Document {
     html: Element,
 }
 impl Document {
-    pub fn new(mut location: File) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(mut location: File) -> Result<Self, DOMParseError> {
         // NOTE(crash): This is intentionally left undealt with as
         // 1. This is only a _temporary_ file reading mechanism,
         //     I can imagine it being changed in the future.

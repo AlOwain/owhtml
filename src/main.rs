@@ -12,14 +12,14 @@ struct Args {
     file: PathBuf,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     let args = Args::parse();
-    let _ = match File::open(args.file) {
+    let dom = match File::open(args.file) {
         Ok(file) => Document::new(file),
         Err(_) => {
             eprintln!("File not found.");
             exit(1);
         }
-    }?;
-    Ok(())
+    };
+    println!("{:?}", dom.unwrap());
 }

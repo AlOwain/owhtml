@@ -47,3 +47,5 @@ This sub-section defines the constraints this program is under, which are not ma
   - Style text position (centered, right, ..)
 - Resolve images resolution.
 - Understand how we want to handle errors, consider being syntactically strict
+- Create an SQLite database for tests, create boolean flags for each category
+- Create a Kanban table for TODOs

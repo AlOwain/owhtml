@@ -3,6 +3,7 @@
 use std::{fs::File, io::Read, str::FromStr};
 
 mod parse;
+mod test;
 use parse::DOMParseError;
 
 #[derive(Debug, PartialEq, Eq)]

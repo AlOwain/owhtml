@@ -55,10 +55,14 @@ pub struct Document {
 }
 impl Document {
     pub fn new(mut location: File) -> Result<Self, Box<dyn std::error::Error>> {
+        // NOTE(crash): This is intentionally left undealt with as
+        // 1. This is only a _temporary_ file reading mechanism,
+        //     I can imagine it being changed in the future.
+        // 2. I am fine with crashing for the price of simplicity.
+        // 3. This must not be user-facing!
         let mut buf = String::new();
-        location.read_to_string(&mut buf)?;
-        let dom = buf.parse()?;
-        println!("{dom:#?}");
-        Ok(dom)
+        location.read_to_string(&mut buf).unwrap();
+
+        Ok(buf.parse()?)
     }
 }

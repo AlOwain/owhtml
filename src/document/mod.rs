@@ -8,21 +8,19 @@ use parse::DOMParseError;
 
 #[derive(Debug, PartialEq, Eq)]
 enum ElementType {
-    Root,
-    Body,
-    Bold(u16),
+    Container,
     Text(u16),
-    Div,
+    // TODO: Should these be added "Input, Button, Image, Link, List, Table, Component"?
 }
 
 impl FromStr for ElementType {
     type Err = DOMParseError;
 
     fn from_str(tag: &str) -> Result<Self, Self::Err> {
+        use ElementType::*;
         match tag {
-            "body" => Ok(ElementType::Body),
-            "div" => Ok(ElementType::Div),
-            "b" => Ok(ElementType::Bold(0)),
+            "html" | "body" | "div" => Ok(Container),
+            "b" | "p" => Ok(Text(0)),
             _ => todo!("Element tag '{tag}' has not been implemented."),
         }
     }

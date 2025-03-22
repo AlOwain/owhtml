@@ -78,12 +78,15 @@ impl Document {
                     iter.next();
                 }
                 (_, None) => {
-                    ctx = Some(Element::default());
+                    ctx = Some(Element {
+                        r#type: ElementType::Text(1),
+                        ..Default::default()
+                    });
                     iter.next();
                 }
                 (_, Some(val)) => {
                     match &mut val.r#type {
-                        ElementType::Text(inner) | ElementType::Bold(inner) => {
+                        ElementType::Text(inner) => {
                             *inner += 1;
                             assert!(val.children.len() == 0);
                             assert!(val.attr.is_empty());
@@ -102,27 +105,13 @@ impl Document {
 impl FromStr for Document {
     type Err = DOMParseError;
     fn from_str(document: &str) -> Result<Self, Self::Err> {
-        let root = match Document::parse_handler(&mut document.chars().peekable())? {
-            Some(e) => {
-                if e.r#type == ElementType::Root {
-                    e
-                } else {
-                    Element {
-                        r#type: ElementType::Root,
-                        children: vec![e],
-                        ..Default::default()
-                    }
-                }
-            }
-            None => Element {
-                r#type: ElementType::Root,
-                ..Default::default()
-            },
-        };
-
-        Ok(Document {
-            doctype: None,
-            html: root,
-        })
+        match Document::parse_handler(&mut document.chars().peekable())? {
+            Some(e) => Ok(Document {
+                doctype: None,
+                html: e,
+            }),
+            // NOTE(UB): What should happen when there are no elements?
+            None => Err(EmptyDocument),
+        }
     }
 }

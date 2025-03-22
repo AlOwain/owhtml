@@ -9,8 +9,8 @@ use parse::DOMParseError;
 enum ElementType {
     Root,
     Body,
-    Bold(String),
-    Text(String),
+    Bold(u16),
+    Text(u16),
     Div,
 }
 
@@ -21,7 +21,7 @@ impl FromStr for ElementType {
         match tag {
             "body" => Ok(ElementType::Body),
             "div" => Ok(ElementType::Div),
-            "b" => Ok(ElementType::Bold(String::new())),
+            "b" => Ok(ElementType::Bold(0)),
             _ => todo!("Element tag '{tag}' has not been implemented."),
         }
     }
@@ -43,7 +43,7 @@ struct Element {
 impl Default for Element {
     fn default() -> Self {
         Element {
-            r#type: ElementType::Text(String::new()),
+            r#type: ElementType::Text(0),
             children: vec![],
             attr: "".to_string(),
         }

@@ -81,10 +81,13 @@ impl Document {
                     ctx = Some(Element::default());
                     iter.next();
                 }
-                (c, Some(val)) => {
+                (_, Some(val)) => {
                     match &mut val.r#type {
-                        ElementType::Text(inner) => inner.push(*c),
-                        ElementType::Bold(inner) => inner.push(*c),
+                        ElementType::Text(inner) | ElementType::Bold(inner) => {
+                            *inner += 1;
+                            assert!(val.children.len() == 0);
+                            assert!(val.attr.is_empty());
+                        }
                         _ => (),
                     };
                     iter.next();

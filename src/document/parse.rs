@@ -4,11 +4,16 @@ use super::{Document, Element, ElementType};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum DOMParseError {
+    #[allow(dead_code)]
+    // NOTE(UB): We currently read tags as soon as we see an opening
+    // tag, and if the file ends preemptively, we ignore that we
+    // did not see a closing tag, just because it is a hassle to
+    // deal with.
+    UnclosedTag,
+
     EmptyDocument,
     TagUnclosed,
     UnexpectedClosingTag,
-    UnclosedTag,
-    UnexpectedChild,
     UnexpectedSymbol,
     MissingOpeningTag,
 }

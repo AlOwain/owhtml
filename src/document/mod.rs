@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::{fs::File, io::Read, str::FromStr};
 
 mod parse;
@@ -24,12 +22,6 @@ impl FromStr for ElementType {
             _ => todo!("Element tag '{tag}' has not been implemented."),
         }
     }
-}
-
-#[derive(Debug)]
-struct SelectorType {
-    r#type: ElementType,
-    attr: String,
 }
 
 // TODO: This should be made to be an enum, as not all types

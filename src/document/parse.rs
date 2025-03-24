@@ -82,30 +82,31 @@ impl Document {
         let mut ctx: Option<Element> = None;
         while let Some(letter) = iter.peek() {
             match (letter, &mut ctx) {
+                // FIX(validity): This deals with the case of improperly closed text nodes,
+                // which we should either ignore, or terminate as an error.
+                // NOTE: Returning here is because in text element cannot have children,
+                // having it return would allow the parent of the text element to parse
+                // the next element which would make it the text's sibling; if we continue
+                // then the text will parse it as a child as other element types would.
+                //
+                // For example:
+                //         <body> Hello <div> Twitch </div> world </body>
+                // would generate the following AST
+                //                             body
+                //                             ┌┼┐
+                //                          p ◄┘│└► p
+                //                             div
+                // instead of
+                //                             body
+                //                              ↓
+                //                              p
+                //                              ↓
+                //                             div
+                // NOTE(validity): Of course this creates an issue when a text element does
+                //     not have a parent. But that should never happen in "valid" HTML.
+                // TODO: You could check if the next character is a closing tag.
+                ('<', Some(val)) if matches!(val.r#type, ElementType::Text(_)) => return Ok(ctx),
                 ('<', Some(val)) => {
-                    // NOTE: Returning here is because in text element cannot have children,
-                    //     having it return would allow the parent of the text element to
-                    //     parse the next element which would make it the text's sibling;
-                    //     if we continue then the text will parse it as a child as other element
-                    //     types would. For example:
-                    //             <body> Hello <div> Twitch </div> world </body>
-                    //     would generate the following AST
-                    //                                   body
-                    //                                   ┌┼┐
-                    //                                p ◄┘│└► p
-                    //                                   div
-                    //     instead of
-                    //                                   body
-                    //                                    ↓
-                    //                                    p
-                    //                                    ↓
-                    //                                   div
-                    // NOTE(validity): Of course this creates an issue when a text element does
-                    //     not have a parent. But that should never happen in valid HTML.
-                    if let ElementType::Text(_) = val.r#type {
-                        return Ok(ctx);
-                    }
-
                     if let Some(child) = Self::parse_handler(iter)? {
                         val.children.push(child);
                     } else {

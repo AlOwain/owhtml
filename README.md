@@ -50,10 +50,17 @@ This sub-section defines the constraints this program is under, which are not ma
 
 > [!FIXME]
 > Work on invalid syntax philosphy:
-> We basically handle syntax errors by doing what's simplest.
-> If it simpler to not handle improper syntax, then we don't
-> and if it's simpler to be as lenient as browsers, then we
-> just ignore the errors as browsers do.
+> -   We basically handle syntax errors by doing what's simplest.
+>   If it simpler to not handle improper syntax, then we don't
+>   and if it's simpler to be as lenient as browsers, then we
+>   just ignore the errors as browsers do.
+> -   We sometimes have dealt with improper errors, because they
+>   we initially did, how should we deal with other errors?
+> -   Maybe we should actually ignore errors like browsers, it
+>   might be simpler than having to properly report them.
+> -   Dealing with errors might be easier because we can use HTML
+>   verifiers to confirm we are doing it correctly.
+> -   Ignoring them could be more useful, as they are so commonplace.
 
 #### Recurrant Bugs
 

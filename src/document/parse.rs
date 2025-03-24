@@ -9,6 +9,7 @@ pub enum DOMParseError {
     UnexpectedClosingTag,
     UnclosedTag,
     UnexpectedChild,
+    UnexpectedSymbol,
     MissingOpeningTag,
 }
 
@@ -138,8 +139,21 @@ impl Document {
                             assert!(val.children.len() == 0);
                             assert!(val.attr.is_empty());
                         }
-                        _ => (),
+                        // FIX: Some test needs to be written on this! As if we do not
+                        // return then a character could be skipped with the residing
+                        // below `iter.next()`, as such:
+                        // <div>...<p>...</p></div>
+                        // may be read as
+                        // <div>...p>...</p></div>
+                        //        ^^^
+                        // Where the ellipsis is normal text (basically `/[a-zA-Z]/`)
+
+                        // NOTE(UB): What should happen here? This is called when:
+                        // - `c` ∉ { '<', '\', ' ' }; which means c is most likely text,
+                        // - `ctx` ∉ { None, `Text` }; `ctx` is most likely a `Container`.
+                        _ => return Err(UnexpectedSymbol),
                     };
+
                     iter.next();
                 }
             }

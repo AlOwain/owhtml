@@ -107,7 +107,7 @@ impl Document {
                         //
                         // Which only happens when the tag is a closing tag, which means
                         // this should return the parsed `ctx`.
-                        break;
+                        return Ok(None);
                     }
                 }
                 ('<', None) => {

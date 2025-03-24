@@ -102,7 +102,7 @@ impl Document {
                     iter.next();
                     let (closing, tagtype, attr) = Self::parse_tag(iter)?;
                     if closing {
-                        break;
+                        return Ok(None);
                     }
 
                     ctx = Some(Element {

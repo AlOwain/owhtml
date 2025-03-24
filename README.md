@@ -36,16 +36,26 @@ This sub-section defines the constraints this program is under, which are not ma
 
 ### TODO list:
 
-- Remove the tag name from the attributes while parsing.
-- Check that `parse_handler` is implemented correctly. I worked on it while very tired.
-- Check if recursive elements would work.
-- Create basic regression tests.
-.. Beyond this point are things to be done in the medium-term
 - Styling:
-  - Create naïve text layout position
-  - Style text (color, italics, ..)
-  - Style text position (centered, right, ..)
+  - Figure out how to encode styling; should there be a table of all styles
+  for each element? It won't be as large as I imagine, and there is a lot of
+  space for improvement by pruning styles that don't effect the element.
 - Resolve images resolution.
-- Understand how we want to handle errors, consider being syntactically strict
 - Create an SQLite database for tests, create boolean flags for each category
 - Create a Kanban table for TODOs
+
+### Miscellaneous
+
+#### Invalid Syntax Handling
+
+> [!FIXME]
+> Work on invalid syntax philosphy:
+> We basically handle syntax errors by doing what's simplest.
+> If it simpler to not handle improper syntax, then we don't
+> and if it's simpler to be as lenient as browsers, then we
+> just ignore the errors as browsers do.
+
+#### Recurrant Bugs
+
+This section includes bugs that are frequently found, bugs that we are, by design, prone to:
+- Skipping characters; we often skip characters as the parser is just one large iterator.

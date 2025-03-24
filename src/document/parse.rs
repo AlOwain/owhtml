@@ -68,6 +68,14 @@ impl Document {
         Ok((closing, tag, attr))
     }
 
+    /*
+    DESCRIPTION: This function will consume the iterator, parsing only one tag
+        at a time, and using recursion to parse its children.
+    RETURNS:
+        Ok(_) => Ok(Some(_)) => An element, it will consume the iterator till the end
+                                of the closing tag.
+               | None        => When it doesn't read anything (or just a closing tag).
+    */
     fn parse_handler(
         iter: &mut Peekable<impl Iterator<Item = char>>,
     ) -> Result<Option<Element>, DOMParseError> {
@@ -175,7 +183,7 @@ impl FromStr for Document {
                 doctype: None,
                 html: e,
             }),
-            // FIX(UB): What should happen when there are no elements?
+            // NOTE(UB): What should happen when there are no elements?
             None => Err(EmptyDocument),
         }
     }

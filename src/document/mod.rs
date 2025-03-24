@@ -8,7 +8,7 @@ use parse::DOMParseError;
 enum ElementType {
     Container,
     Text(u16),
-    // TODO: Should these be added "Input, Button, Image, Link, List, Table, Component"?
+    // TODO: Should these be added: "Input, Button, Image, Link, List, Table, Component"?
 }
 
 impl FromStr for ElementType {
@@ -42,9 +42,10 @@ impl Default for Element {
         }
     }
 }
+
 #[derive(Debug)]
 pub struct Document {
-    // NOTE(UB): Should this be an `Option` or an empty
+    // NOTE: Should this be an `Option` or an empty
     // `String`, or can the doctype always be inferred.
     doctype: Option<String>,
     html: Element,

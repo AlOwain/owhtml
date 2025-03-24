@@ -5,7 +5,7 @@ use super::{Document, Element, ElementType};
 #[derive(Debug, PartialEq, Eq)]
 pub enum DOMParseError {
     EmptyDocument,
-    ClosingTagUnclosed,
+    TagUnclosed,
     UnexpectedClosingTag,
     UnclosedTag,
     UnexpectedChild,
@@ -26,14 +26,14 @@ impl Document {
         let mut attr = String::new();
         let closing = match iter.peek() {
             Some(c) => *c == '/',
-            None => return Err(ClosingTagUnclosed),
+            None => return Err(TagUnclosed),
         };
+
         if closing {
-            iter.next().unwrap();
+            iter.next().unwrap(); // If it is closing, skip the '/'
         }
 
         let mut tag: Option<ElementType> = None;
-
         while let Some(letter) = iter.next() {
             match letter {
                 '>' => break,

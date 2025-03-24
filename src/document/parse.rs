@@ -17,6 +17,7 @@ impl Document {
     fn parse_tag(
         iter: &mut Peekable<impl Iterator<Item = char>>,
     ) -> Result<(bool, ElementType, String), DOMParseError> {
+        let mut tag_name = String::new();
         let mut attr = String::new();
         let closing = match iter.peek() {
             Some(c) => *c == '/',
@@ -32,14 +33,21 @@ impl Document {
             match letter {
                 '>' => break,
                 ' ' if tag.is_none() => {
-                    tag = Some(ElementType::from_str(attr.as_str())?);
-                    attr.clear();
+                    tag = Some(ElementType::from_str(tag_name.as_str())?);
                 }
-                _ => attr.push(letter),
+
+                // NOTE: This obviously can be rewritten and made more
+                //     concise, by using the same variable for both the
+                //     attributes and tag name, but it is deliberately
+                //     left as such to be clearer.
+                _ if tag.is_none() => tag_name.push(letter),
+                // NOTE: Closing tags have no attributes.
+                _ if tag.is_some() && !closing => attr.push(letter),
+                _ => (),
             }
         }
 
-        let tag = tag.unwrap_or(ElementType::from_str(attr.as_str())?);
+        let tag = tag.unwrap_or(ElementType::from_str(&tag_name)?);
         Ok((closing, tag, attr))
     }
 

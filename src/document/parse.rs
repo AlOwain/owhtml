@@ -14,6 +14,11 @@ pub enum DOMParseError {
 use DOMParseError::*;
 
 impl Document {
+    // DESCRIPTION: parses the contents of an HTML tag beginning by the first
+    // letter of an iterator, the iterator should not start with a '<' symbol
+    // as the caller is expected to consume that.
+    //
+    // If the tag is a closing tag, attributes are ignored.
     fn parse_tag(
         iter: &mut Peekable<impl Iterator<Item = char>>,
     ) -> Result<(bool, ElementType, String), DOMParseError> {
@@ -58,9 +63,38 @@ impl Document {
         while let Some(letter) = iter.peek() {
             match (letter, &mut ctx) {
                 ('<', Some(val)) => {
+                    // NOTE: Returning here is because in text element cannot have children,
+                    //     having it return would allow the parent of the text element to
+                    //     parse the next element which would make it the text's sibling;
+                    //     if we continue then the text will parse it as a child as other element
+                    //     types would. For example:
+                    //             <body> Hello <div> Twitch </div> world </body>
+                    //     would generate the following AST
+                    //                                   body
+                    //                                   ┌┼┐
+                    //                                p ◄┘│└► p
+                    //                                   div
+                    //     instead of
+                    //                                   body
+                    //                                    ↓
+                    //                                    p
+                    //                                    ↓
+                    //                                   div
+                    // NOTE(validity): Of course this creates an issue when a text element does
+                    //     not have a parent. But that should never happen in valid HTML.
+                    if let ElementType::Text(_) = val.r#type {
+                        return Ok(ctx);
+                    }
+
                     if let Some(child) = Self::parse_handler(iter)? {
                         val.children.push(child);
                     } else {
+                        // NOTE: This breaks here because the `parse_handler` call above
+                        // consumes the iterator till the end of the tag, and the
+                        // resulting iterator parsed items returned `None`.
+                        //
+                        // Which only happens when the tag is a closing tag, which means
+                        // this should return the parsed `ctx`.
                         break;
                     }
                 }
@@ -78,7 +112,7 @@ impl Document {
                     });
                 }
 
-                // FIXME(improper error): Shouldn't this be a `UnclosedTag` error?
+                // TODO: This error needs test cases.
                 ('>', None) => return Err(UnexpectedClosingTag),
                 ('\\', _) => todo!("Escape sequences have not been implemented."),
 
@@ -118,7 +152,7 @@ impl FromStr for Document {
                 doctype: None,
                 html: e,
             }),
-            // NOTE(UB): What should happen when there are no elements?
+            // FIX(UB): What should happen when there are no elements?
             None => Err(EmptyDocument),
         }
     }

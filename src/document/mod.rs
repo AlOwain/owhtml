@@ -32,6 +32,8 @@ struct SelectorType {
     attr: String,
 }
 
+// TODO: This should be made to be an enum, as not all types
+// have children (and not all types have attributes?).
 #[derive(Debug)]
 struct Element {
     r#type: ElementType,
@@ -50,16 +52,18 @@ impl Default for Element {
 }
 #[derive(Debug)]
 pub struct Document {
+    // NOTE(UB): Should this be an `Option` or an empty
+    // `String`, or can the doctype always be inferred.
     doctype: Option<String>,
     html: Element,
 }
 impl Document {
     pub fn new(mut location: File) -> Result<Self, DOMParseError> {
-        // NOTE(crash): This is intentionally left undealt with as
+        // NOTE(crash): This is intentionally left to crash as:
         // 1. This is only a _temporary_ file reading mechanism,
-        //     I can imagine it being changed in the future.
-        // 2. I am fine with crashing for the price of simplicity.
-        // 3. This must not be user-facing!
+        //   I can imagine it being changed in the future;
+        // 2. I am fine with crashing for the price of simplicity, and;
+        // 3. The program prefers errors to make it exit.
         let mut buf = String::new();
         location.read_to_string(&mut buf).unwrap();
 

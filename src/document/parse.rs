@@ -9,19 +9,25 @@ pub enum DOMParseError {
     UnexpectedClosingTag,
     UnclosedTag,
     UnexpectedChild,
+    MissingOpeningTag,
 }
 
 use DOMParseError::*;
 
 impl Document {
     // DESCRIPTION: parses the contents of an HTML tag beginning by the first
-    // letter of an iterator, the iterator should not start with a '<' symbol
-    // as the caller is expected to consume that.
+    // letter of an iterator, the iterator must start with a '<' symbol as
+    // the function expects to consume that, you could make it check for it
+    // to be optionally there, but do we really want that :).
     //
     // If the tag is a closing tag, attributes are ignored.
     fn parse_tag(
         iter: &mut Peekable<impl Iterator<Item = char>>,
     ) -> Result<(bool, ElementType, String), DOMParseError> {
+        if !matches!(iter.next(), Some('<')) {
+            return Err(MissingOpeningTag);
+        }
+
         let mut tag_name = String::new();
         let mut attr = String::new();
         let closing = match iter.peek() {
@@ -99,7 +105,6 @@ impl Document {
                     }
                 }
                 ('<', None) => {
-                    iter.next();
                     let (closing, tagtype, attr) = Self::parse_tag(iter)?;
                     if closing {
                         return Ok(None);

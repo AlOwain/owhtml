@@ -123,13 +123,16 @@ impl Document {
                     });
                 }
 
+                // FIX: HTML does not ignore whitespace completely as we do,
+                // it folds it, so HTML treats `/\n+/` as a single newline,
+                // and `/[[:blank:]]+/` as a single space.
+                (c, _) if c.is_whitespace() => {
+                    iter.next();
+                }
                 // TODO: This error needs test cases.
                 ('>', None) => return Err(UnexpectedClosingTag),
                 ('\\', _) => todo!("Escape sequences have not been implemented."),
 
-                (c, None) if c.is_whitespace() => {
-                    iter.next();
-                }
                 (_, None) => {
                     ctx = Some(Element {
                         r#type: ElementType::Text(1),
@@ -144,6 +147,8 @@ impl Document {
                             assert!(val.children.len() == 0);
                             assert!(val.attr.is_empty());
 
+                            // FIX: If the character is a space, you should probably move
+                            // the iterator till a non-whitespace character is found.
                             iter.next();
                         }
 

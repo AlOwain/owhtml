@@ -7,7 +7,7 @@ mod document;
 use document::Document;
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = Some("A toy program written to view HTML documents."))]
+#[command(version, about, long_about = Some("A toy program written to normalize HTML documents."))]
 struct Args {
     file: PathBuf,
 }

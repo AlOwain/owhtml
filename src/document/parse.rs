@@ -20,6 +20,16 @@ pub enum DOMParseError {
 
 use DOMParseError::*;
 
+// TODO: This should be tested properly.
+fn skip_spaces(iter: &mut Peekable<impl Iterator<Item = char>>) {
+    while let Some(c) = iter.peek() {
+        if !c.is_whitespace() {
+            break;
+        }
+        iter.next();
+    }
+}
+
 impl Document {
     /*
     TODO: Bring this into its own module.
@@ -54,9 +64,14 @@ impl Document {
         while let Some(letter) = iter.next() {
             match letter {
                 '>' => break,
-                ' ' if tag.is_none() => {
-                    tag = Some(ElementType::from_str(tag_name.as_str())?);
-                }
+                ' ' => match tag {
+                    Some(_) => {
+                        skip_spaces(iter);
+                    }
+                    None => {
+                        tag = Some(ElementType::from_str(tag_name.as_str())?);
+                    }
+                },
 
                 // NOTE: This obviously can be rewritten and made more
                 //     concise, by using the same variable for both the

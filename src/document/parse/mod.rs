@@ -1,5 +1,9 @@
 use std::{iter::Peekable, str::FromStr};
 
+mod skip_spaces;
+
+use self::skip_spaces::skip_spaces;
+
 use super::{Document, Element, ElementType};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -19,16 +23,6 @@ pub enum DOMParseError {
 }
 
 use DOMParseError::*;
-
-// TODO: This should be tested properly.
-fn skip_spaces(iter: &mut Peekable<impl Iterator<Item = char>>) {
-    while let Some(c) = iter.peek() {
-        if !c.is_whitespace() {
-            break;
-        }
-        iter.next();
-    }
-}
 
 impl Document {
     /*

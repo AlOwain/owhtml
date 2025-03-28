@@ -64,3 +64,47 @@ impl Document {
         Ok((closing, tag, attr))
     }
 }
+
+mod test {
+    #![allow(unused_macros, unused_imports)]
+    use std::{iter::Peekable, str::Chars};
+
+    use super::{
+        DOMParseError::*,
+        Document,
+        ElementType::{self, *},
+    };
+
+    macro_rules! call_tag_parser {
+        ($str: literal, $result: expr, $stop_char: expr) => {
+            let mut i: Peekable<Chars> = $str.chars().peekable();
+            assert_eq!(
+                Document::tag(&mut i),
+                $result.map(|res: (bool, ElementType, &str)| (res.0, res.1, res.2.to_string()))
+            );
+            assert_eq!(i.peek().map(|c| c.clone()), $stop_char);
+        };
+    }
+
+    #[test]
+    #[rustfmt::skip]
+    pub fn parsing_tag() {
+        const F: bool = false;
+        const T: bool = true;
+
+        call_tag_parser!("b>",  Err(MissingOpeningTag), Some('>'));
+        call_tag_parser!(" b>", Err(MissingOpeningTag), Some('b'));
+        call_tag_parser!("<b>", Ok((F, Text(0), "")), None);
+        call_tag_parser!("<div> ", Ok((F, Container, "")), Some(' '));
+        call_tag_parser!("</div>X", Ok((T, Container, "")), Some('X'));
+        call_tag_parser!("</div this will not be read>", Ok((T, Container, "")), None);
+        // FIX: Failing test! As we currently ignore all whitespace.
+        call_tag_parser!("<div this will be read>", Ok((F, Container, "this will be read")), None);
+        // FIX: Failing test!
+        //     1. As we currently ignore all whitespace.
+        //     2. The whitespace we ignore always begins with a literal ' ' (U+0020).
+        call_tag_parser!("<p this    will\tnot  have \t\t\n\t that  many\n\n\t whitespace>", Ok((F, Container, "this will not have that many whitespace")), None);
+
+        // TODO: Add more tests
+    }
+}

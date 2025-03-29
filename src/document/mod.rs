@@ -26,7 +26,7 @@ impl FromStr for ElementType {
 
 // TODO: This should be made to be an enum, as not all types
 // have children (and not all types have attributes?).
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 struct Element {
     r#type: ElementType,
     children: Vec<Element>,

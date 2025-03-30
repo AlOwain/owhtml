@@ -36,8 +36,6 @@ This sub-section defines the constraints this program is under, which are not ma
 
 ### To-do list:
 
-- Create TODO comments for things that can be tested.
-- Create tests for FIX comments.
 - Styling:
   - Figure out how to encode styling; should there be a table of all styles
   for each element? It won't be as large as I imagine, and there is a lot of

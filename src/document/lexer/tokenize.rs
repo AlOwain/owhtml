@@ -1,0 +1,64 @@
+use std::iter::Peekable;
+
+use super::{
+    state::State::{self, *},
+    token::Token,
+};
+
+pub(super) fn tokenize(
+    state: &mut State,
+    iter: &mut Peekable<impl Iterator<Item = char>>,
+) -> Token {
+    match state {
+        // 13.2.5.1 Data state
+        Data => {
+            // Consume the next input character:
+            let letter = match iter.next() {
+                Some(letter) => letter,
+                // Emit an end-of-file token.
+                None => return Token::EOF,
+            };
+
+            match letter {
+                '&' => {
+                    todo!("Set the return state to the data state. Switch to the character reference state.");
+                }
+                '<' => {
+                    todo!("Switch to the tag open state.");
+                }
+                '\0' => {
+                    todo!("This is an unexpected-null-character parse error. Emit the current input character as a character token.");
+                }
+                _ => {
+                    todo!("Emit the current input character as a character token.")
+                }
+            }
+        }
+
+        // 13.2.5.2 RCDATA state
+        RcData => {
+            // Consume the next input character:
+            let letter = match iter.next() {
+                Some(letter) => letter,
+                // Emit an end-of-file token.
+                None => return Token::EOF,
+            };
+
+            match letter {
+                '&' => {
+                    todo!("Set the return state to the RCDATA state. Switch to the character reference state.");
+                }
+                '<' => {
+                    todo!("Switch to the RCDATA less-than sign state.");
+                }
+                '\0' => {
+                    todo!("This is an unexpected-null-character parse error. Emit a U+FFFD REPLACEMENT CHARACTER character token.");
+                }
+                _ => {
+                    todo!("Emit the current input character as a character token.")
+                }
+            }
+        }
+        _ => todo!("No other tokenization state has been implemented."),
+    }
+}

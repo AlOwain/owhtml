@@ -17,6 +17,7 @@ impl Document {
         // 3. The program prefers errors to make it exit.
         let mut buf = String::new();
         location.read_to_string(&mut buf).unwrap();
+        lexer::lexer(buf);
 
         Ok(Self { doctype: None })
     }

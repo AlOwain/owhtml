@@ -10,10 +10,11 @@ pub fn lexer(document: String) -> Vec<Token> {
     let mut state = Default::default();
     loop {
         let token = tokenize::tokenize(&mut state, &mut iter);
-        if token == EOF {
-            break;
+        match token {
+            Some(EOF) => break,
+            Some(token) => tokens.push(token),
+            None => continue,
         }
-        tokens.push(token);
     }
     return tokens;
 }

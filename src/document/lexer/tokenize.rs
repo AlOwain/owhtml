@@ -1,14 +1,12 @@
 use std::iter::Peekable;
 
-use super::{
-    state::State::{self, *},
-    token::Token,
-};
+use super::{state::State, token::Token};
 
 pub(super) fn tokenize(
     state: &mut State,
     iter: &mut Peekable<impl Iterator<Item = char>>,
-) -> Token {
+) -> Option<Token> {
+    use State::*;
     match state {
         // 13.2.5.1 Data state
         Data => {
@@ -16,7 +14,7 @@ pub(super) fn tokenize(
             let letter = match iter.next() {
                 Some(letter) => letter,
                 // Emit an end-of-file token.
-                None => return Token::EOF,
+                None => return Some(Token::EOF),
             };
 
             match letter {
@@ -24,7 +22,8 @@ pub(super) fn tokenize(
                     todo!("Set the return state to the data state. Switch to the character reference state.");
                 }
                 '<' => {
-                    todo!("Switch to the tag open state.");
+                    // Switch to the tag open state.
+                    *state = TagOpen;
                 }
                 '\0' => {
                     todo!("This is an unexpected-null-character parse error. Emit the current input character as a character token.");
@@ -41,7 +40,7 @@ pub(super) fn tokenize(
             let letter = match iter.next() {
                 Some(letter) => letter,
                 // Emit an end-of-file token.
-                None => return Token::EOF,
+                None => return Some(Token::EOF),
             };
 
             match letter {
@@ -59,6 +58,7 @@ pub(super) fn tokenize(
                 }
             }
         }
-        _ => todo!("No other tokenization state has been implemented."),
+        _ => todo!("{state:?} has been implemented."),
     }
+    None
 }

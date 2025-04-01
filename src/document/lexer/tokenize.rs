@@ -4,6 +4,7 @@ use super::{Err, State, Token};
 
 pub(super) fn tokenize(
     state: &mut State,
+    return_state: &mut Option<State>,
     errs: &mut Vec<Err>,
     iter: &mut Peekable<impl Iterator<Item = char>>,
 ) -> Option<Token> {

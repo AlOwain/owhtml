@@ -10,8 +10,9 @@ pub fn lexer(document: String) -> Vec<Token> {
     let mut tokens = Vec::new();
     let mut errors = Vec::new();
     let mut state = Default::default();
+    let mut return_state = None;
     loop {
-        let token = tokenize::tokenize(&mut state, &mut errors, &mut iter);
+        let token = tokenize::tokenize(&mut state, &mut return_state, &mut errors, &mut iter);
         match token {
             Some(Token::EOF) => break,
             Some(token) => tokens.push(token),

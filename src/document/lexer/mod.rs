@@ -21,25 +21,19 @@ impl FromStr for Lexer {
     type Err = ();
 
     fn from_str(document: &str) -> Result<Self, ()> {
-        let mut iter = document.chars().peekable();
-        let mut state = Default::default();
-        let mut return_state = None;
-        let mut lexer = Lexer {
+        let lexer = Lexer {
             tokens: Vec::new(),
             errors: Vec::new(),
         };
+        let iter = document.chars().peekable();
+        let mut tokenizer: Tokenizer<Chars> = (lexer, iter).into();
 
-        loop {
-            let token =
-                tokenize::tokenize(&mut state, &mut return_state, &mut lexer.errors, &mut iter);
-            match token {
-                Some(Token::EOF) => break,
-                Some(token) => lexer.tokens.push(token),
-                None => continue,
-            }
-        }
+        while let Some(()) = tokenizer.next() {}
 
-        Ok(lexer)
+        Ok(Lexer {
+            tokens: tokenizer.tokens,
+            errors: tokenizer.errors,
+        })
     }
 }
 

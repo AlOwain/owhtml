@@ -9,14 +9,14 @@ pub use {error::Err, state::State, token::Token};
 
 #[derive(Debug)]
 pub struct Lexer {
-    tokens: Vec<Token>,
-    errors: Vec<Err>,
+    pub tokens: Vec<Token>,
+    pub errors: Vec<Err>,
 }
 
 impl FromStr for Lexer {
-    type Err = Err;
+    type Err = ();
 
-    fn from_str(document: &str) -> Result<Self, Self::Err> {
+    fn from_str(document: &str) -> Result<Self, ()> {
         let mut iter = document.chars().peekable();
         let mut state = Default::default();
         let mut return_state = None;

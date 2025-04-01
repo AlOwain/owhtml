@@ -1,24 +1,21 @@
-use std::{fs::File, io::Read, str::FromStr};
+use std::{fs::File, io::Read};
 
 mod lexer;
 
+use lexer::Lexer;
+
 #[derive(Debug)]
-pub struct Document {
-    // NOTE: Should this be an `Option` or an empty
-    // `String`, or can the doctype always be inferred.
-    doctype: Option<String>,
-}
+pub struct Document(Lexer);
+
 impl Document {
     pub fn new(mut location: File) -> Result<Self, String> {
-        // NOTE(crash): This is intentionally left to crash as:
-        // 1. This is only a _temporary_ file reading mechanism,
-        //   I can imagine it being changed in the future;
-        // 2. I am fine with crashing for the price of simplicity, and;
-        // 3. The program prefers errors to make it exit.
+        // NOTE(crash): This is intentionally left to crash as
+        // this is only a temporary file reading mechanism, it
+        // will be changed in the future.
         let mut buf = String::new();
         location.read_to_string(&mut buf).unwrap();
-        lexer::lexer(buf);
+        let l: Lexer = buf.parse().unwrap();
 
-        Ok(Self { doctype: None })
+        Ok(Self(l))
     }
 }

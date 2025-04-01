@@ -1,4 +1,4 @@
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct DocTypeInner {
     name: Option<String>,              // TODO: Confirm type.
     public_identifier: Option<String>, // TODO: Confirm type.
@@ -6,7 +6,7 @@ struct DocTypeInner {
     force_quirks: bool,
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct TagInner {
     pub tag_name: String,
     pub self_closing: bool,
@@ -14,7 +14,7 @@ pub struct TagInner {
     pub attrs: Vec<(String, String)>,
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     DocType(DocTypeInner),
     StartTag(TagInner),

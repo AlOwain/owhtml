@@ -1,4 +1,7 @@
-use std::str::FromStr;
+use std::{
+    iter::Peekable,
+    str::{Chars, FromStr},
+};
 
 mod error;
 mod state;
@@ -40,15 +43,15 @@ impl FromStr for Lexer {
     }
 }
 
-impl<'doc> Into<Tokenizer<'doc>> for (Lexer, &'doc str) {
-    fn into(self) -> Tokenizer<'doc> {
+impl<CharIter: Iterator<Item = char>> From<(Lexer, Peekable<CharIter>)> for Tokenizer<CharIter> {
+    fn from(tokenizer: (Lexer, Peekable<CharIter>)) -> Tokenizer<CharIter> {
         Tokenizer {
-            tokens: self.0.tokens,
-            errors: self.0.errors,
+            tokens: tokenizer.0.tokens,
+            errors: tokenizer.0.errors,
 
-            state: Default::default(),
+            state: State::default(),
             return_state: None,
-            source: self.1.chars().peekable(),
+            source: tokenizer.1,
         }
     }
 }

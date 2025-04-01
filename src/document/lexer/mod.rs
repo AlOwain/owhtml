@@ -5,6 +5,7 @@ mod state;
 mod token;
 mod tokenize;
 
+use tokenize::Tokenizer;
 pub use {error::Err, state::State, token::Token};
 
 #[derive(Debug)]
@@ -36,5 +37,18 @@ impl FromStr for Lexer {
         }
 
         Ok(lexer)
+    }
+}
+
+impl<'doc> Into<Tokenizer<'doc>> for (Lexer, &'doc str) {
+    fn into(self) -> Tokenizer<'doc> {
+        Tokenizer {
+            tokens: self.0.tokens,
+            errors: self.0.errors,
+
+            state: Default::default(),
+            return_state: None,
+            source: self.1.chars().peekable(),
+        }
     }
 }

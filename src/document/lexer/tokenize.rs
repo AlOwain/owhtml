@@ -1,6 +1,18 @@
-use std::iter::Peekable;
+use std::{iter::Peekable, str::Chars};
 
 use super::{Err, State, Token};
+
+pub struct Tokenizer<'doc> {
+    // NOTE: I realize that having to duplicate their definitions
+    // might cause issues later on, in keeping them synchronized,
+    // but I prefer it to having to type `foo.inner.bar`.
+    pub tokens: Vec<Token>,
+    pub errors: Vec<Err>,
+
+    pub state: State,
+    pub return_state: Option<State>,
+    pub source: Peekable<Chars<'doc>>,
+}
 
 pub(super) fn tokenize(
     state: &mut State,

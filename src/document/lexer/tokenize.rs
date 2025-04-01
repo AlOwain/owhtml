@@ -7,10 +7,9 @@ pub(super) fn tokenize(
     errs: &mut Vec<Err>,
     iter: &mut Peekable<impl Iterator<Item = char>>,
 ) -> Option<Token> {
-    use State::*;
     match state {
         // 13.2.5.1 Data state
-        Data => {
+        State::Data => {
             // Consume the next input character:
             let letter = match iter.next() {
                 Some(letter) => letter,
@@ -24,7 +23,7 @@ pub(super) fn tokenize(
                 }
                 '<' => {
                     // Switch to the tag open state.
-                    *state = TagOpen;
+                    *state = State::TagOpen;
                 }
                 '\0' => {
                     todo!("This is an unexpected-null-character parse error. Emit the current input character as a character token.");
@@ -36,7 +35,7 @@ pub(super) fn tokenize(
         }
 
         // 13.2.5.2 RCDATA state
-        RcData => {
+        State::RcData => {
             // Consume the next input character:
             let letter = match iter.next() {
                 Some(letter) => letter,
@@ -59,7 +58,8 @@ pub(super) fn tokenize(
                 }
             }
         }
-        _ => todo!("{state:?} has been implemented."),
+        _ => todo!("{state:?} has not been implemented."),
     }
+
     None
 }

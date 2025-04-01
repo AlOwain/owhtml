@@ -1,9 +1,10 @@
 use std::iter::Peekable;
 
-use super::{state::State, token::Token};
+use super::{Err, State, Token};
 
 pub(super) fn tokenize(
     state: &mut State,
+    errs: &mut Vec<Err>,
     iter: &mut Peekable<impl Iterator<Item = char>>,
 ) -> Option<Token> {
     use State::*;

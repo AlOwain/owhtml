@@ -7,11 +7,11 @@ struct DocTypeInner {
 }
 
 #[derive(PartialEq)]
-struct TagInner {
-    tag_name: String,
-    self_closing: bool,
+pub struct TagInner {
+    pub tag_name: String,
+    pub self_closing: bool,
     // What are the types of the attributes' "names" and "values".
-    attrs: Vec<(String, String)>,
+    pub attrs: Vec<(String, String)>,
 }
 
 #[derive(PartialEq)]
@@ -20,7 +20,7 @@ pub enum Token {
     StartTag(TagInner),
     EndTag(TagInner),
     Comment(String),
-    Character(String),
+    Character(char),
     EOF,
 }
 

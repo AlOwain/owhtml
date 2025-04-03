@@ -111,11 +111,12 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                         // This is an `eof-before-tag-name` parse error.
                         self.errors.push(Err::EOFBeforeTagName);
 
-                        // Emit a `U+003C (LESS-THAN SIGN)` character token and an `end-of-file` token.
-                        todo!("Emit an EOF token.");
-                        #[allow(unreachable_code)]
+                        // Emit a `U+003C (LESS-THAN SIGN)` character token
                         self.tokens.push(Token::Character('<'));
-                        return Some(());
+
+                        // Emit an `end-of-file` token.
+                        self.tokens.push(Token::EOF);
+                        return None;
                     }
                 };
 

@@ -143,7 +143,6 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
                         // NOTE(spec): Create a new start tag token, set its tag name to the empty string.
                         self.current_token = Some(Token::StartTag(TagInner::default()));
-                        return Some(());
                     }
                     '?' => {
                         // NOTE(spec): This is an `unexpected-question-mark-instead-of-tag-name` parse error.
@@ -155,7 +154,6 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
                         // NOTE(spec): Create a comment token whose data is the empty string.
                         self.current_token = Some(Token::Comment(String::new()));
-                        return Some(());
                     }
                     _ => {
                         // NOTE(spec): This is an `invalid-first-character-of-tag-name` parse error.

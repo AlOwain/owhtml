@@ -21,10 +21,10 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
         match self.state {
             // 13.2.5.1 Data state
             State::Data => {
-                // Consume the next input character:
+                // NOTE(spec): Consume the next input character:
                 let letter = match self.source.next() {
                     Some(letter) => letter,
-                    // Emit an end-of-file token.
+                    // NOTE(spec): Emit an end-of-file token.
                     None => {
                         self.tokens.push(Token::EOF);
                         return None;
@@ -33,21 +33,21 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
                 match letter {
                     '&' => {
-                        // Set the return state to the data state. Switch to the character reference state.
+                        // NOTE(spec): Set the return state to the data state. Switch to the character reference state.
                         assert!(self.return_state.is_none());
                         self.return_state = Some(State::Data);
 
                         self.state = State::CharacterReference;
                     }
                     '<' => {
-                        // Switch to the tag open state.
+                        // NOTE(spec): Switch to the tag open state.
                         self.state = State::TagOpen;
                     }
                     '\0' => {
-                        // This is an `unexpected-null-character` parse error.
+                        // NOTE(spec): This is an `unexpected-null-character` parse error.
                         self.errors.push(Err::UnexpectedNullCharacter);
 
-                        // Emit the current input character as a character token.
+                        // NOTE(spec): Emit the current input character as a character token.
                         unimplemented!("This should emit the current input character as a character token. But it is a null character.");
 
                         // FIX: What should we do here? What do other parsers do?
@@ -57,7 +57,7 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                         return None;
                     }
                     input_char => {
-                        // Emit the current input character as a character token.
+                        // NOTE(spec): Emit the current input character as a character token.
                         self.tokens.push(Token::Character(input_char));
                         return Some(());
                     }
@@ -66,11 +66,11 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
             // 13.2.5.2 RCDATA state
             State::RcData => {
-                // Consume the next input character:
+                // NOTE(spec): Consume the next input character:
                 let letter = match self.source.next() {
                     Some(letter) => letter,
                     None => {
-                        // Emit an end-of-file token.
+                        // NOTE(spec): Emit an end-of-file token.
                         self.tokens.push(Token::EOF);
                         return Some(());
                     }
@@ -78,24 +78,24 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
                 match letter {
                     '&' => {
-                        // Set the return state to the RCDATA state. Switch to the character reference state.
+                        // NOTE(spec): Set the return state to the RCDATA state. Switch to the character reference state.
                         self.return_state = Some(State::RcData);
                         self.state = State::CharacterReference;
                     }
                     '<' => {
-                        // Switch to the RCDATA less-than sign state.
+                        // NOTE(spec): Switch to the RCDATA less-than sign state.
                         self.state = State::RcDataLessThan;
                     }
                     '\0' => {
-                        // This is an `unexpected-null-character` parse error.
+                        // NOTE(spec): This is an `unexpected-null-character` parse error.
                         self.errors.push(Err::UnexpectedNullCharacter);
 
-                        // Emit a `U+FFFD (REPLACEMENT CHARACTER)` character token.
+                        // NOTE(spec): Emit a `U+FFFD (REPLACEMENT CHARACTER)` character token.
                         self.tokens.push(Token::Character('\u{fffd}'));
                         return Some(());
                     }
                     input_char => {
-                        // Emit the current input character as a character token.
+                        // NOTE(spec): Emit the current input character as a character token.
                         self.tokens.push(Token::Character(input_char));
                         return Some(());
                     }
@@ -104,17 +104,17 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
             // 13.2.5.6 Tag open state
             State::TagOpen => {
-                // Consume the next input character:
+                // NOTE(spec): Consume the next input character:
                 let letter = match self.source.peek() {
                     Some(letter) => letter,
                     None => {
-                        // This is an `eof-before-tag-name` parse error.
+                        // NOTE(spec): This is an `eof-before-tag-name` parse error.
                         self.errors.push(Err::EOFBeforeTagName);
 
-                        // Emit a `U+003C (LESS-THAN SIGN)` character token
+                        // NOTE(spec): Emit a `U+003C (LESS-THAN SIGN)` character token
                         self.tokens.push(Token::Character('<'));
 
-                        // Emit an `end-of-file` token.
+                        // NOTE(spec): Emit an `end-of-file` token.
                         self.tokens.push(Token::EOF);
                         return None;
                     }
@@ -122,43 +122,44 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
                 match letter {
                     '!' => {
-                        // Switch to the markup declaration open state.
+                        // NOTE(spec): Switch to the markup declaration open state.
                         self.state = State::MarkupDeclarationOpen;
                     }
                     '/' => {
-                        // Switch to the end tag open state.
+                        // NOTE(spec): Switch to the end tag open state.
                         self.state = State::EndTagOpen;
                     }
                     'a'..'z' | 'A'..'Z' => {
                         use super::token::TagInner;
 
-                        // Reconsume in the tag name state.
+                        // NOTE(spec): Reconsume in the tag name state.
                         self.state = State::TagName;
 
-                        // Create a new start tag token, set its tag name to the empty string.
+                        // NOTE(spec): Create a new start tag token, set its tag name to the empty string.
                         self.tokens.push(Token::StartTag(TagInner::default()));
                         return Some(());
                     }
                     '?' => {
-                        // This is an `unexpected-question-mark-instead-of-tag-name` parse error.
+                        // NOTE(spec): This is an `unexpected-question-mark-instead-of-tag-name` parse error.
                         self.errors
                             .push(Err::UnexpectedQuestionMarkInsteadOfTagName);
 
-                        // Reconsume in the bogus comment state.
+                        // NOTE(spec): Reconsume in the bogus comment state.
                         self.state = State::BogusComment;
 
-                        // Create a comment token whose data is the empty string.
+                        // NOTE(spec): Create a comment token whose data is the empty string.
+                        // FIXME(create-not-emit): Replace the emission of a token with its creation.
                         self.tokens.push(Token::Comment(String::new()));
                         return Some(());
                     }
                     _ => {
-                        // This is an `invalid-first-character-of-tag-name` parse error.
+                        // NOTE(spec): This is an `invalid-first-character-of-tag-name` parse error.
                         self.errors.push(Err::InvalidFirstCharacterOfTagName);
 
-                        // Reconsume in the data state.
+                        // NOTE(spec): Reconsume in the data state.
                         self.state = State::Data;
 
-                        // Emit a `U+003C (LESS-THAN SIGN)` character token.
+                        // NOTE(spec): Emit a `U+003C (LESS-THAN SIGN)` character token.
                         self.tokens.push(Token::Character('<'));
                         return Some(());
                     }
@@ -166,6 +167,7 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
             }
             _ => todo!("{:?} has not been implemented.", self.state),
         }
+
         Some(())
     }
 }

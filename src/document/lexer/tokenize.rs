@@ -72,7 +72,7 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                     None => {
                         // NOTE(spec): Emit an end-of-file token.
                         self.tokens.push(Token::EOF);
-                        return Some(());
+                        return None;
                     }
                 };
 

@@ -160,10 +160,60 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
 
                         // NOTE(spec): Emit a `U+003C (LESS-THAN SIGN)` character token.
                         self.tokens.push(Token::Character('<'));
-                        return Some(());
                     }
                 }
             }
+
+            // 13.2.5.7 End tag open state
+            State::EndTagOpen => {
+                // NOTE(spec): Consume the next input character:
+                let letter = match self.source.peek() {
+                    Some(letter) => letter,
+                    None => {
+                        // NOTE(spec): This is an `eof-in-tag` parse error.
+                        self.errors.push(Err::EOFInTag);
+
+                        // NOTE(spec): Emit a `U+003C` character token
+                        self.tokens.push(Token::Character('<'));
+                        // NOTE(spec): A `U+002F` character token
+                        self.tokens.push(Token::Character('/'));
+                        // NOTE(spec): And an end-of-file token.
+                        self.tokens.push(Token::EOF);
+
+                        return None;
+                    }
+                };
+
+                match letter {
+                    'a'..='z' | 'A'..='Z' => {
+                        // NOTE(spec): Create a new end tag token and set its tag name to the empty string.
+                        self.current_token = Some(Token::EndTag(TagInner::default()));
+                        // NOTE(spec): Reconsume in the tag name state.
+                        self.state = State::TagName;
+                    }
+                    '>' => {
+                        // NOTE(spec): This is a `missing-end-tag-name` parse error.
+                        self.errors.push(Err::MissingEndTagName);
+
+                        // NOTE(spec): Switch to the data state.
+                        self.state = State::Data;
+
+                        // FIXME: Reconsuming—not consuming—should be done explicitly.
+                        self.source.next();
+                    }
+                    _ => {
+                        // NOTE(spec): This is an `invalid-first-character-of-tag-name` parse error.
+                        self.errors.push(Err::InvalidFirstCharacterOfTagName);
+
+                        // NOTE(spec): Create a comment token whose data is the empty string.
+                        self.tokens.push(Token::Comment(String::new()));
+
+                        // NOTE(spec): Reconsume in the bogus comment state.
+                        self.state = State::BogusComment;
+                    }
+                }
+            }
+
             // 13.2.5.8 Tag name state
             State::TagName => {
                 // NOTE(spec): Consume the next input character:

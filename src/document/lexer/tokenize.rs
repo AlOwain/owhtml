@@ -131,7 +131,7 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                         // NOTE(spec): Switch to the end tag open state.
                         self.state = State::EndTagOpen;
                     }
-                    'a'..'z' | 'A'..'Z' => {
+                    'a'..='z' | 'A'..='Z' => {
                         // NOTE(spec): Reconsume in the tag name state.
                         self.state = State::TagName;
 

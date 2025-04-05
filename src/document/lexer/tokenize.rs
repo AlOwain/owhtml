@@ -1,6 +1,6 @@
 use std::iter::Peekable;
 
-use super::{Err, State, Token};
+use super::{token::TagInner, Err, State, Token};
 
 pub(super) struct Tokenizer<CharIter: Iterator<Item = char>> {
     // NOTE: I realize that having to duplicate their definitions
@@ -130,8 +130,6 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                         self.state = State::EndTagOpen;
                     }
                     'a'..'z' | 'A'..'Z' => {
-                        use super::token::TagInner;
-
                         // NOTE(spec): Reconsume in the tag name state.
                         self.state = State::TagName;
 

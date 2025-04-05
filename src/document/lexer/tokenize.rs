@@ -126,10 +126,16 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                     '!' => {
                         // NOTE(spec): Switch to the markup declaration open state.
                         self.state = State::MarkupDeclarationOpen;
+
+                        // FIXME: Reconsuming—not consuming—should be done explicitly.
+                        self.source.next();
                     }
                     '/' => {
                         // NOTE(spec): Switch to the end tag open state.
                         self.state = State::EndTagOpen;
+
+                        // FIXME: Reconsuming—not consuming—should be done explicitly.
+                        self.source.next();
                     }
                     'a'..='z' | 'A'..='Z' => {
                         // NOTE(spec): Reconsume in the tag name state.

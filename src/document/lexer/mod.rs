@@ -46,6 +46,8 @@ impl<CharIter: Iterator<Item = char>> From<(Lexer, Peekable<CharIter>)> for Toke
             state: State::default(),
             return_state: None,
             source: tokenizer.1,
+
+            current_token: None,
         }
     }
 }

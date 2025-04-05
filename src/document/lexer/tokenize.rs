@@ -12,6 +12,8 @@ pub(super) struct Tokenizer<CharIter: Iterator<Item = char>> {
     pub state: State,
     pub return_state: Option<State>,
     pub source: Peekable<CharIter>,
+
+    pub current_token: Option<Token>,
 }
 
 impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
@@ -134,7 +136,7 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                         self.state = State::TagName;
 
                         // NOTE(spec): Create a new start tag token, set its tag name to the empty string.
-                        self.tokens.push(Token::StartTag(TagInner::default()));
+                        self.current_token = Some(Token::StartTag(TagInner::default()));
                         return Some(());
                     }
                     '?' => {
@@ -146,8 +148,7 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                         self.state = State::BogusComment;
 
                         // NOTE(spec): Create a comment token whose data is the empty string.
-                        // FIXME(create-not-emit): Replace the emission of a token with its creation.
-                        self.tokens.push(Token::Comment(String::new()));
+                        self.current_token = Some(Token::Comment(String::new()));
                         return Some(());
                     }
                     _ => {

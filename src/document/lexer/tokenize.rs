@@ -164,6 +164,79 @@ impl<CharIter: Iterator<Item = char>> Iterator for Tokenizer<CharIter> {
                     }
                 }
             }
+            // 13.2.5.8 Tag name state
+            State::TagName => {
+                // NOTE(spec): Consume the next input character:
+                let letter = match self.source.next() {
+                    Some(letter) => letter,
+                    None => {
+                        // NOTE(spec): This is an `eof-in-tag` parse error.
+                        self.errors.push(Err::EOFInTag);
+
+                        // NOTE(spec): Emit an `end-of-file` token.
+                        self.tokens.push(Token::EOF);
+                        return None;
+                    }
+                };
+
+                match letter {
+                    // NOTE(spec): Tab or `new line` or `U+000C (Form Feed (FF))` or Space
+                    _ if letter.is_whitespace() => {
+                        // NOTE(spec): Switch to the before attribute name state.
+                        self.state = State::BeforeAttributeName;
+                    }
+                    '/' => {
+                        // NOTE(spec): Switch to the self-closing start tag state.
+                        self.state = State::SelfClosingStartTag;
+                    }
+                    '>' => {
+                        // NOTE(spec): Switch to the data state.
+                        self.state = State::Data;
+
+                        // NOTE(spec): Emit the current tag token.
+                        self.tokens.push(
+                            // NOTE(crash): The state is never set to `TagName` unless a tag is created afterwords.
+                            self.current_token.take().unwrap(),
+                        );
+                    }
+
+                    'A'..='Z' => {
+                        // NOTE(spec): Append the lowercase version of the current input character (add 0x0020 to the character's code point) to the current tag token's tag name.
+                        self.current_token
+                            .as_mut()
+                            // NOTE(crash): The state is never set to `TagName` unless a tag is created afterwords.
+                            .unwrap()
+                            .append_to_tagname(letter.to_ascii_lowercase())
+                            // NOTE(crash): Appending to a `TagName` is infallible.
+                            .unwrap();
+                    }
+
+                    '\0' => {
+                        // NOTE(spec): This is an unexpected-null-character parse error.
+                        self.errors.push(Err::UnexpectedNullCharacter);
+
+                        // NOTE(spec): Append a `U+FFFD (REPLACEMENT CHARACTER)` character to the current tag token's tag name.
+                        self.current_token
+                            .as_mut()
+                            // NOTE(crash): The state is never set to `TagName` unless a tag is created afterwords.
+                            .unwrap()
+                            // NOTE(crash): Appending to a `TagName` is infallible.
+                            .append_to_tagname('\u{fffd}')
+                            .unwrap();
+                    }
+                    _ => {
+                        // NOTE(spec): Append the current input character to the current tag token's tag name.
+                        self.current_token
+                            .as_mut()
+                            // NOTE(crash): The state is never set to `TagName` unless a tag is created afterwords.
+                            .unwrap()
+                            .append_to_tagname(letter)
+                            // NOTE(crash): Appending to a `TagName` is infallible.
+                            .unwrap();
+                    }
+                }
+            }
+
             _ => todo!("{:?} has not been implemented.", self.state),
         }
 

@@ -24,6 +24,18 @@ pub enum Token {
     EOF,
 }
 
+impl Token {
+    pub fn append_to_tagname(self: &mut Token, letter: char) -> Result<(), ()> {
+        match self {
+            Token::StartTag(tag) | Token::EndTag(tag) => {
+                tag.tag_name.push(letter);
+                Ok(())
+            }
+            _ => Err(()),
+        }
+    }
+}
+
 impl Default for DocTypeInner {
     fn default() -> Self {
         DocTypeInner {

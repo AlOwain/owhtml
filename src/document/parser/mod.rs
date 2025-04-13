@@ -4,18 +4,12 @@ use std::{
 };
 
 mod error;
+mod lexer;
 mod state;
 mod token;
-mod tokenize;
 
 use tokenize::Tokenizer;
-pub use {error::Err, state::State, token::Token};
-
-#[derive(Debug)]
-pub struct Lexer {
-    pub tokens: Vec<Token>,
-    pub errors: Vec<Err>,
-}
+pub use {error::Err, lexer::Lexer, state::State, token::Token};
 
 impl FromStr for Lexer {
     type Err = ();

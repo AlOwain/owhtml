@@ -1,6 +1,9 @@
 use std::iter::Peekable;
 
-use super::{token::TagInner, Err, State, Token};
+use crate::document::{
+    parser::{token::TagInner, Err, State},
+    Token,
+};
 
 pub(super) struct Tokenizer<CharIter: Iterator<Item = char>> {
     // NOTE: I realize that having to duplicate their definitions

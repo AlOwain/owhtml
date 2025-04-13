@@ -1,14 +1,15 @@
 use std::{fs::File, io::Read};
 
-mod lexer;
+mod parser;
 
-use lexer::Lexer;
+use parser::Lexer;
+pub use parser::Token;
 
 #[derive(Debug)]
-pub struct Document(Lexer);
+pub struct Document;
 
 impl Document {
-    pub fn new(mut location: File) -> Result<Self, ()> {
+    pub fn new(mut location: File) -> Result<(Vec<Token>, Vec<parser::Err>), ()> {
         let mut buf = String::new();
 
         // NOTE(crash): This is intentionally left to crash as
@@ -18,6 +19,7 @@ impl Document {
 
         // NOTE(crash): This will never return Result::Err as the
         // error type is unit `()`.
-        Ok(Self(buf.parse().unwrap()))
+        let parser_result = buf.parse::<Lexer>().unwrap();
+        Ok((parser_result.tokens, parser_result.errors))
     }
 }

@@ -1,4 +1,6 @@
-mod tokenize;
+pub mod tokenize;
+
+pub use tokenize::Tokenizer;
 
 use super::{Err, Token};
 

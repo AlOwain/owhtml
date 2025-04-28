@@ -8,8 +8,7 @@ mod lexer;
 mod state;
 mod token;
 
-use tokenize::Tokenizer;
-pub use {error::Err, lexer::Lexer, state::State, token::Token};
+pub use {error::Err, lexer::Lexer, lexer::Tokenizer, state::State, token::Token};
 
 impl FromStr for Lexer {
     type Err = ();

@@ -5,7 +5,7 @@ use crate::document::{
     Token,
 };
 
-pub(super) struct Tokenizer<CharIter: Iterator<Item = char>> {
+pub struct Tokenizer<CharIter: Iterator<Item = char>> {
     // NOTE: I realize that having to duplicate their definitions
     // might cause issues later on, in keeping them synchronized,
     // but I prefer it to having to type `foo.inner.bar`.
